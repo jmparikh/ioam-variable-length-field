@@ -5,9 +5,10 @@
 Internet Engineering Task Force                                J. Parikh
 Internet-Draft                                           Arista Networks
 Intended status: Experimental                               C. Pignataro
-Expires: 4 October 2025                                         A. Clemm
+Expires: 5 October 2025                             Blue Fern Consulting
+                                                                A. Clemm
                                          Please add your org and address
-                                                            2 April 2025
+                                                            3 April 2025
 
 
 Variable Length Trace Option for In-situ Operations, Administration, and
@@ -36,7 +37,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 October 2025.
+   This Internet-Draft will expire on 5 October 2025.
 
 Copyright Notice
 
@@ -52,8 +53,7 @@ Copyright Notice
 
 
 
-
-Parikh, et al.           Expires 4 October 2025                 [Page 1]
+Parikh, et al.           Expires 5 October 2025                 [Page 1]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 2]
+Parikh, et al.           Expires 5 October 2025                 [Page 2]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -165,7 +165,7 @@ Internet-Draft              Abbreviated Title                 April 2025
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 3]
+Parikh, et al.           Expires 5 October 2025                 [Page 3]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -221,7 +221,7 @@ Internet-Draft              Abbreviated Title                 April 2025
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 4]
+Parikh, et al.           Expires 5 October 2025                 [Page 4]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -277,7 +277,7 @@ Internet-Draft              Abbreviated Title                 April 2025
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 5]
+Parikh, et al.           Expires 5 October 2025                 [Page 5]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -333,7 +333,7 @@ Internet-Draft              Abbreviated Title                 April 2025
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 6]
+Parikh, et al.           Expires 5 October 2025                 [Page 6]
 
 Internet-Draft              Abbreviated Title                 April 2025
 
@@ -384,14 +384,17 @@ Authors' Addresses
 
 
    Carlos Pignataro
-   Please add your org and address
-   Email: cpignata@gmail.com
+   Blue Fern Consulting
+   United States of America
 
 
 
-Parikh, et al.           Expires 4 October 2025                 [Page 7]
+Parikh, et al.           Expires 5 October 2025                 [Page 7]
 
 Internet-Draft              Abbreviated Title                 April 2025
+
+
+   Email: cpignata@gmail.com, carlos@bluefern.consulting
 
 
    Alexander Clemm
@@ -442,7 +445,4 @@ Internet-Draft              Abbreviated Title                 April 2025
 
 
 
-
-
-
-Parikh, et al.           Expires 4 October 2025                 [Page 8]
+Parikh, et al.           Expires 5 October 2025                 [Page 8]

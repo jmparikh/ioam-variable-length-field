@@ -44,9 +44,13 @@
     </author>
    
     <author fullname="Carlos Pignataro" initials="C." surname="Pignataro">
-      <organization>Please add your org and address</organization>
+      <organization abbrev="Blue Fern Consulting">Blue Fern Consulting</organization>
       <address>
+        <postal>
+          <country>US</country>
+        </postal>
         <email>cpignata@gmail.com</email>
+        <email>carlos@bluefern.consulting</email>
       </address>
     </author>
 
