@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="rfc7991bis.rnc"?>
+
+<!DOCTYPE rfc [
+  <!ENTITY nbsp    "&#160;">
+  <!ENTITY zwsp   "&#8203;">
+  <!ENTITY nbhy   "&#8209;">
+  <!ENTITY wj     "&#8288;">
+  <!ENTITY bull   "&#8226;">
+  <!ENTITY tab   "&#9;">
+  <!ENTITY RFC.2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+  <!ENTITY RFC.8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
+  <!ENTITY RFC.9197 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.9197.xml">
+  <!ENTITY RFC.9378 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.9378.xml">
+]>
+
+<rfc
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  category="exp"
+  docName="draft-parikh-ioam-variable-length-field-00"
+  ipr="trust200902"
+  obsoletes=""
+  updates=""
+  submissionType="IETF"
+  xml:lang="en"
+  version="3">
+
+  <front>
+    <title abbrev="Abbreviated Title">Variable Length Trace Option for In-situ Operations, Administration, and Maintenance (IOAM)</title>
+    
+    <seriesInfo name="Internet-Draft" value="draft-parikh-ioam-variable-length-field-00"/>
+   
+    <author fullname="Jainam Parikh" initials="J." surname="Parikh">
+      <organization>Arista Networks</organization>
+      <address>
+        <postal>
+          <street>5453 Great America Parkway</street>
+          <city>Santa Clara</city>
+          <code>95054</code>
+          <country>US</country>
+        </postal>
+        <email>jainam@parikhgroup.net</email>
+      </address>
+    </author>
+   
+    <author fullname="Carlos Pignataro" initials="C." surname="Pignataro">
+      <organization abbrev="Blue Fern Consulting">Blue Fern Consulting</organization>
+      <address>
+        <postal>
+          <country>US</country>
+        </postal>
+        <email>cpignata@gmail.com</email>
+        <email>carlos@bluefern.consulting</email>
+      </address>
+    </author>
+
+    <author fullname="Alexander Clemm" initials="A." surname="Clemm">
+      <organization>Please add your org and address</organization>
+      <address>
+        <email>ludwig@clemm.org</email>
+      </address>
+    </author>
+
+
+    <date />
+    
+    <area>General</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>IOAM</keyword>
+
+    <abstract>
+      <t>The purpose of this memo is to describe a new option type, called Flex Field,
+      for In-Situ Operations, Administration, and Maintenance (IOAM). This option type
+      allows one to append variable length data in IOAM data along a network path.
+      </t>
+    </abstract>
+ 
+  </front>
+
+  <middle>
+    
+    <section>
+      <name>Introduction</name>
+      <t>
+        In Situ Operations, Administration, and Maintenance (IOAM) is used
+        for recording and collecting operational and telemetry information
+        while the packet traverses a path between two points in the network.
+        <xref target="RFC9197" /> defines the data fields and associated data 
+        types for IOAM. Currently, every data field (but one) defined in there 
+        is of fixed length, i.e. 4-octet or 8-octet, the only variable length
+        field in that document is for the Opaque State Snapshot 
+        (<xref target="RFC9197" sectionFormat="of" section="4.4.2.13." />).
+      </t>
+
+      <t>
+        What if a network operator wants to add important variable length data, 
+        from the nodes along a network path, in an IOAM packet? This memo 
+        proposes a new option type for In-Situ Operations, Administration, and 
+        Maintenance (IOAM) <xref target="RFC9197" />, to address that.
+      </t>
+      
+      <section>
+        <name>Requirements Language</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+          "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+          RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+          interpreted as described in BCP 14 <xref target="RFC2119"/>
+          <xref target="RFC8174"/> when, and only when, they appear in
+          all capitals, as shown here.</t>
+      </section>
+
+    </section>
+    
+    <section>
+      <name>Background and Motivation</name>
+      <t>
+        As we had discussed in the previous section, the 
+        <xref target="RFC9197"/> talks about IOAM data fields and 
+        different IOAM nodes types.
+      </t>
+
+      <t>
+        The term "in situ", in IOAM, refers to the fact that the OAM 
+        data is added to the data packets rather than being sent within 
+        packets specifically dedicated to OAM. IOAM (which uses the data
+        plane) is used to complement mechanisms, such as Ping or Traceroute
+        (which use the control plane).
+      </t>
+
+      <t>
+        Now, many applications, interested in telemetry data across a 
+        path are not only interested in the entire path's comprehensive 
+        telemetry, (to paint a more holistic picture), but also in each
+        individual node's telemetry.
+        <br />
+        For example:
+      </t>
+
+      <dl newline="true">
+        <dt>Individual packet latency of each node, across the path.</dt>
+        <dd>
+          (This might look same like traceroute, but unlke traceroute,
+          we could, with this, be getting the data-plane latency)
+        </dd>
+
+        <dt>Per-interface performance metrics:</dt>
+        <dd>
+          &bull; Microbursts<br/>
+          &bull; Packet Drops<br/>
+          &bull; Traffic Rates<br/>
+          &bull; Congestion<br/>
+          &bull; Timestamps<br/>
+          &bull; Path consistencies, etc.
+        </dd>
+
+        <dt>Sustainable Networking Applications:</dt>
+        <dd>
+          &bull; Carbon-Intensity of each node along the path (And using 
+          that as an input to applications that attempt to minimize 
+          pollution attributable to specific networking traffic)<br/>
+          &bull; Power Utilization of each node along the path, etc.
+        </dd>
+      </dl>
+
+      <t>
+        And so, as discussed above, using IOAM, which traverses in the data 
+        plane, we would get an accurate idea of how the above mentioned 
+        telemetry metrics would look, for actual data plane packets/traffic.
+      </t>
+
+      <t>
+        Now, due to the nature of this field, and how it is designed, it will
+        have an upper limit when it comes to "how many nodes (data) can this field
+        accomodate (255)", but it should idealy be able to address an administrative 
+        domain's needs. And it is and will be both, backwards compatible with 
+        existing IOAM data field definitions and forward compatible for if any
+        new data fields are introduced in the future.
+      </t>
+      
+    </section>
+
+    <section>
+      <name>Transport Options for the Flex Field</name>
+      <t>
+        So, as discussed above, we will be using XX (undefined) [---preferrably the 21st bit,
+        so it's next to the opaque state snapshot, for relatively easay processing---] bit 
+        for, the IOAM-Trace-Type field present in the "Pre-allocated and Incremental
+        Trace-Option headers"
+        (<xref target="RFC9197" sectionFormat="of" section="4.4.1." />), to
+        represent the new Flex Field defined in this document.
+      </t>
+
+      <t>
+        And, due to the nature of this field, when present, the Node Length 
+        (<xref target="RFC9197" sectionFormat="of" section="4.4.1." />)
+        present in the IOAM Header, will exclude the length of this field.
+        With this, logic processor will know that the actual bits 0-11 are done 
+        and can start on the XX bit (aka this document) with it's own length.
+      </t>
+    </section>
+
+    <section>
+      <name>IOAM Flex Field Option Type</name>
+      <t>
+        This section defines the data field for IOAM Flex Field Option Type.
+        And like other IOAM Option Types <xref target="RFC9197" />, this field 
+        can be transported by a variety of transport protocols, including NSH, 
+        Segment Routing, Geneve, BIER, IPv6, etc. <xref target="RFC9378" />
+      </t>
+
+      <dl newline="true" spacing ="normal">
+        <dt>
+          Flex Field Option Type
+        </dt>
+        <dd>
+          <figure anchor="flex-field-option">
+            <name>Flex Field Option Type</name>
+            <artset>
+              <artwork type="ascii-art" name="FlexFieldOptionType.txt" align="center">
+                <![CDATA[
+ 
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     Length                    |   Hop Count   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|        Namespace-ID           | Flags |       Reserved        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                                                               |
+|                              Data                             |
+~                                                               ~
+.                                                               .
+.                                                               .
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                ]]>
+              </artwork>
+            </artset>
+          </figure>
+        </dd>
+      </dl>
+      
+      <dl newline="true" spacing="normal">
+        <dt>
+          Length:
+        </dt>
+        <dd>
+          A 24-bit field, which will represent the length of the Flex Field.
+          The length field MUST be present and populated with the "number of
+          4 octect words" OR "just the general size in bits" in the eintire 
+          Flex Field, including the header octet word (this will allow us to 
+          have a lot of data in this field and won't have any problems). This 
+          field will also let the processing node know till what size does 
+          the FLex Field goes, so that it won't accidentally consider the 
+          Opaque State Snapshot Data Field as a part of the Flex Field.
+          <br/><br/>
+          (--PLEASE DECIDE ON A LENGTB OPTION, EITHER OCTET OR BITS--)
+        </dd>
+        
+        <dt>
+          Hop Count:
+        </dt>
+        <dd>
+          A 8-bit fields to represent the hop count to record the number 
+          of nodes along the path that successfully processed the Flex Field.
+          The encapsulating node MUST set the value to 1, and each subsequent 
+          node (transit nodes, as well as the decapsulating node prior to 
+          performing decapsulation) MUST increment its value by 1. If the Hop 
+          Count at a node exceeds 255, that node MUST set the Hop Count to 0 
+          and set Flag 1 ("Node Hop Count Exceeded") to prevent further processing 
+          of the Flex Field.
+        </dd>
+
+        <dt>
+          Namespace-ID:
+        </dt>
+        <dd>
+          As discussed in <xref target="RFC9197" />, this is a 16-bit identifier 
+          of an IOAM-Namespace. The Namespace-ID value of 0x0000 is defined as the 
+          "Default-Namespace-ID" (<xref target="RFC9197" sectionFormat="of" section="4.3." />)
+          and MUST be known to all the nodes implementing IOAM. <br/> The Namespace-ID 
+          is populated by the encapsulating node and MUST NOT be changed by any of
+          the intermediate nodes. For any other Namespace-ID value that does not match any
+          Namespace-ID the node is configured to operate on, the node MUST NOT change 
+          the contents of the IOAM-Data-Fields except for the Namespace Flag (see below)
+        </dd>
+
+        <dt>
+          Flags:
+        </dt>
+        <dd>
+          Flags are 4-bit in length, which are used to indicate errors, which are
+          encountered during the process of populating the data in the Flex Field.
+          Once a flag is set, no further aggregarion occurs along the path.
+          The encapsulating node MUST set the value of Flags to 0 upon transmission.
+          When an intermediate node encounters receives a packet in which any of
+          operations on that packet; instead, the IOAM data MUST be the Flags are 
+          non-zero, the node MUST NOT perform further IOAM forwarded as-is unchanged.<br/>
+          Here's how the flags are defined: <br/>
+          &bull; Flag &nbsp;0: 0x0000: Default Flag value.<br/>
+          &bull; Flag &nbsp;1: 0x0001: Node Hop Count Exceeded.<br/>
+          &bull; Flag &nbsp;2: 0x0010: Length Error.<br/>
+          &bull; Flag 16: 0x1111: Other error.
+        </dd>
+
+        <dt>
+          Reserved:
+        </dt>
+        <dd>
+          A 12-bit field, reserved for future usage. The IOAM encapsulating 
+          node MUST set the value to zero upon transmission. And IOAM transit 
+          nodes MUST ignore the received value (unless this field us used in  
+          a future memo)
+        </dd>
+
+        <dt>
+          Data:
+        </dt>
+        <dd>
+          This field is the variable length field which will contain the actual
+          data that the operator would like to append.<br/>
+          Now, what gets into this space is dependent on the Namespace specific
+          definition that the operator chooses to have inside their domain. As 
+          discussed in <xref target="RFC9197" sectionFormat="of" section="4.3." />, 
+          the significance of IOAM-Data-Fields is always within a particular 
+          IOAM-Namespace and so, this gives the operators flexibility to append 
+          different types of variable length data for different Namespaces.
+          <br/>
+          Example: IOAM-Namespaces can be used to identify different sets of 
+          devices (e.g., different types of devices) in a deployment; if an 
+          operator wants to insert different IOAM-Data-Fields based on the 
+          device, the devices could be grouped into multiple IOAM-Namespaces.
+        </dd>
+      </dl>
+    </section> 
+
+    <section>
+      <name>Sample Use Case</name>
+      <t>Body text [REPLACE]</t>
+      
+    </section> 
+
+    <section>
+      <name>Secutiry Considerations</name>
+      <t>
+        As discussed in <xref target="RFC9378" />, IOAM is focused on "limited domains", as defined in [RFC8799].  IOAM
+   is not targeted for a deployment on the global Internet, which would
+   incur additional considerations such as the crossing of Trust
+   Boundaries, authentication of IOAM data, or the desire to obfuscate
+   domain internals to outside parties.  The part of the network that
+   employs IOAM is referred to as the "IOAM-Domain".
+      </t>
+    </section>
+    
+    <section anchor="IANA">
+    <!-- All drafts are required to have an IANA considerations section. See RFC 8126 for a guide.-->
+      <name>IANA Considerations</name>
+      <t>This memo includes no request to IANA. [CHECK]</t>
+    </section>
+    
+    <section anchor="Security">
+      <!-- All drafts are required to have a security considerations section. See RFC 3552 for a guide. -->
+      <name>Security Considerations</name>
+      <t>This document should not affect the security of the Internet. [CHECK]</t>
+    </section>
+    
+    <!-- NOTE: The Acknowledgements and Contributors sections are at the end of this template -->
+  </middle>
+
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        
+        &RFC.2119;
+        &RFC.8174;
+        &RFC.9197;
+        &RFC.9378;
+        
+      </references>
+ 
+      <references>
+        <name>Informative References</name>       
+       
+      </references>
+    </references>
+    
+    <section>
+      <name>Appendix 1 [REPLACE/DELETE]</name>
+      <t>This becomes an Appendix [REPLACE]</t>
+    </section>
+
+    <section anchor="Acknowledgements" numbered="false">
+      <!-- [REPLACE/DELETE] an Acknowledgements section is optional -->
+      <name>Acknowledgements</name>
+      <t>This template uses extracts from templates written by Pekka Savola, Elwyn Davies and 
+        Henrik Levkowetz. [REPLACE]</t>
+    </section>
+    
+    <section anchor="Contributors" numbered="false">
+      <!-- [REPLACE/DELETE] a Contributors section is optional -->
+      <name>Contributors</name>
+      <t>Thanks to all of the contributors. [REPLACE]</t>
+      <!-- [CHECK] it is optional to add a <contact> record for some or all contributors -->
+    </section>
+    
+ </back>
+</rfc>
