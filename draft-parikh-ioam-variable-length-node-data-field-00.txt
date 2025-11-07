@@ -368,7 +368,7 @@ Authors' Addresses
    Carlos Pignataro
    Blue Fern Consulting
    United States of America
-   Email: cpignata@gmail.com, carlos@bluefern.consulting
+   Email: carlos@bluefern.consulting
 
 
    Alexander Clemm
