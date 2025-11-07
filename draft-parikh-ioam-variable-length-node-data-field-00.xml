@@ -26,7 +26,7 @@
   version="3">
 
   <front>
-    <title abbrev="Abbreviated Title">Variable Length Trace Option for In-situ Operations, Administration, and Maintenance (IOAM)</title>
+    <title abbrev="Abbreviated Title">Variable Length Node Data Field Option for In-situ Operations, Administration, and Maintenance (IOAM)</title>
     
     <seriesInfo name="Internet-Draft" value="draft-parikh-ioam-variable-length-field-00"/>
    
@@ -55,8 +55,11 @@
     </author>
 
     <author fullname="Alexander Clemm" initials="A." surname="Clemm">
-      <organization>Please add your org and address</organization>
+      <organization>Sympotech</organization>
       <address>
+        <postal>
+          <country>US</country>
+        </postal>
         <email>ludwig@clemm.org</email>
       </address>
     </author>
@@ -70,9 +73,10 @@
     <keyword>IOAM</keyword>
 
     <abstract>
-      <t>The purpose of this memo is to describe a new option type, called Flex Field,
-      for In-Situ Operations, Administration, and Maintenance (IOAM). This option type
-      allows one to append variable length data in IOAM data along a network path.
+      <t>The purpose of this memo is to describe a new IOAM Node Data Field type, called Flex 
+      Field, for In-Situ Operations, Administration, and Maintenance (IOAM). This option type,
+      under IOAM Trace Option-Types will allow one to append variable length node data in an IOAM
+      packet, along a network path.
       </t>
     </abstract>
  
@@ -87,15 +91,15 @@
         for recording and collecting operational and telemetry information
         while the packet traverses a path between two points in the network.
         <xref target="RFC9197" /> defines the data fields and associated data 
-        types for IOAM. Currently, every data field (but one) defined in there 
-        is of fixed length, i.e. 4-octet or 8-octet, the only variable length
+        types for IOAM. Currently, every node data field (but one) defined in 
+        there is of fixed length, i.e. 4-octet or 8-octet, the only variable length
         field in that document is for the Opaque State Snapshot 
         (<xref target="RFC9197" sectionFormat="of" section="4.4.2.13." />).
       </t>
 
       <t>
-        What if a network operator wants to add important variable length data, 
-        from the nodes along a network path, in an IOAM packet? This memo 
+        What if a network operator wants to add important variable length node
+        data, from the nodes along a network path, in an IOAM packet? This memo 
         proposes a new option type for In-Situ Operations, Administration, and 
         Maintenance (IOAM) <xref target="RFC9197" />, to address that.
       </t>
@@ -172,10 +176,11 @@
       <t>
         Now, due to the nature of this field, and how it is designed, it will
         have an upper limit when it comes to "how many nodes (data) can this field
-        accomodate (255)", but it should idealy be able to address an administrative 
-        domain's needs. And it is and will be both, backwards compatible with 
-        existing IOAM data field definitions and forward compatible for if any
-        new data fields are introduced in the future.
+        accomodate" and we have decied to keep it at 255 (with variable length).
+        This should idealy be able to address an administrative domain's needs.
+        And it is and will be both, backwards compatible with existing IOAM data
+        field definitions and forward compatible for if any new data fields are
+        introduced in the future.
       </t>
       
     </section>
@@ -183,12 +188,11 @@
     <section>
       <name>Transport Options for the Flex Field</name>
       <t>
-        So, as discussed above, we will be using XX (undefined) [---preferrably the 21st bit,
-        so it's next to the opaque state snapshot, for relatively easay processing---] bit 
-        for, the IOAM-Trace-Type field present in the "Pre-allocated and Incremental
-        Trace-Option headers"
-        (<xref target="RFC9197" sectionFormat="of" section="4.4.1." />), to
-        represent the new Flex Field defined in this document.
+        So, as discussed above, we will be using XX (undefined) [---preferrably the
+        21st bit, so it's next to the opaque state snapshot, for easy processing---]
+        bit for, the IOAM-Trace-Type field present in the "Pre-allocated and Incremental
+        Trace-Option headers" (<xref target="RFC9197" sectionFormat="of" section="4.4.1." />),
+        to represent the new Flex Field defined in this document.
       </t>
 
       <t>
@@ -196,14 +200,14 @@
         (<xref target="RFC9197" sectionFormat="of" section="4.4.1." />)
         present in the IOAM Header, will exclude the length of this field.
         With this, logic processor will know that the actual bits 0-11 are done 
-        and can start on the XX bit (aka this document) with it's own length.
+        and can start on the XX bit (i.e. this document) with it's own length.
       </t>
     </section>
 
     <section>
       <name>IOAM Flex Field Option Type</name>
       <t>
-        This section defines the data field for IOAM Flex Field Option Type.
+        This section defines a new node data field for IOAM Flex Field Option Type.
         And like other IOAM Option Types <xref target="RFC9197" />, this field 
         can be transported by a variety of transport protocols, including NSH, 
         Segment Routing, Geneve, BIER, IPv6, etc. <xref target="RFC9378" />
@@ -211,7 +215,7 @@
 
       <dl newline="true" spacing ="normal">
         <dt>
-          Flex Field Option Type
+          Flex Field Node Data Field Option Type
         </dt>
         <dd>
           <figure anchor="flex-field-option">
@@ -229,7 +233,7 @@
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                                                               |
-|                              Data                             |
+|                            Data                               |
 ~                                                               ~
 .                                                               .
 .                                                               .
@@ -248,14 +252,13 @@
         <dd>
           A 24-bit field, which will represent the length of the Flex Field.
           The length field MUST be present and populated with the "number of
-          4 octect words" OR "just the general size in bits" in the eintire 
-          Flex Field, including the header octet word (this will allow us to 
-          have a lot of data in this field and won't have any problems). This 
-          field will also let the processing node know till what size does 
-          the FLex Field goes, so that it won't accidentally consider the 
-          Opaque State Snapshot Data Field as a part of the Flex Field.
-          <br/><br/>
-          (--PLEASE DECIDE ON A LENGTB OPTION, EITHER OCTET OR BITS--)
+          4 octect words" in the entire Flex Field, including the header octet word
+          (this will allow us to have significant amount of data in this field, and also
+          have a uniformity in the length field processing across the packet, since the
+          Opaque State Snapshot also will have a similar length calculation). This field 
+          will also let the processing node know till what size does the Flex Field
+          goes, so that it won't accidentally consider the Opaque State Snapshot Data
+          Field as a part of the Flex Field. <br/><br/>
         </dd>
         
         <dt>
@@ -337,32 +340,25 @@
 
     <section>
       <name>Sample Use Case</name>
-      <t>Body text [REPLACE]</t>
-      
-    </section> 
+      <t>TBD</t>
+    </section>
 
     <section>
       <name>Secutiry Considerations</name>
       <t>
-        As discussed in <xref target="RFC9378" />, IOAM is focused on "limited domains", as defined in [RFC8799].  IOAM
-   is not targeted for a deployment on the global Internet, which would
-   incur additional considerations such as the crossing of Trust
-   Boundaries, authentication of IOAM data, or the desire to obfuscate
-   domain internals to outside parties.  The part of the network that
-   employs IOAM is referred to as the "IOAM-Domain".
+        As discussed in <xref target="RFC9378" />, IOAM is focused on "limited domains",
+        as defined in [RFC8799].  IOAM is not targeted for a deployment on the global
+        Internet, which would incur additional considerations such as the crossing of
+        Trust Boundaries, authentication of IOAM data, or the desire to obfuscate domain
+        internals to outside parties.  The part of the network that employs IOAM is
+        referred to as the "IOAM-Domain".
       </t>
     </section>
     
     <section anchor="IANA">
     <!-- All drafts are required to have an IANA considerations section. See RFC 8126 for a guide.-->
       <name>IANA Considerations</name>
-      <t>This memo includes no request to IANA. [CHECK]</t>
-    </section>
-    
-    <section anchor="Security">
-      <!-- All drafts are required to have a security considerations section. See RFC 3552 for a guide. -->
-      <name>Security Considerations</name>
-      <t>This document should not affect the security of the Internet. [CHECK]</t>
+      <t>TBD</t>
     </section>
     
     <!-- NOTE: The Acknowledgements and Contributors sections are at the end of this template -->
@@ -386,24 +382,11 @@
        
       </references>
     </references>
-    
-    <section>
-      <name>Appendix 1 [REPLACE/DELETE]</name>
-      <t>This becomes an Appendix [REPLACE]</t>
-    </section>
 
     <section anchor="Acknowledgements" numbered="false">
       <!-- [REPLACE/DELETE] an Acknowledgements section is optional -->
       <name>Acknowledgements</name>
-      <t>This template uses extracts from templates written by Pekka Savola, Elwyn Davies and 
-        Henrik Levkowetz. [REPLACE]</t>
-    </section>
-    
-    <section anchor="Contributors" numbered="false">
-      <!-- [REPLACE/DELETE] a Contributors section is optional -->
-      <name>Contributors</name>
-      <t>Thanks to all of the contributors. [REPLACE]</t>
-      <!-- [CHECK] it is optional to add a <contact> record for some or all contributors -->
+      <t>TBD</t>
     </section>
     
  </back>
