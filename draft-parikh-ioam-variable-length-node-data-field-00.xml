@@ -175,7 +175,7 @@
       <t>
         Now, due to the nature of this field, and how it is designed, it will
         have an upper limit when it comes to "how many nodes (data) can this field
-        accomodate" and we have decied to keep it at 255 (with variable length).
+        accomodate" and we have decided to keep it at 255 (with variable length).
         This should idealy be able to address an administrative domain's needs.
         And it is and will be both, backwards compatible with existing IOAM data
         field definitions and forward compatible for if any new data fields are
